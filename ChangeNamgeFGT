@@ -1,0 +1,26 @@
+---
+- name: Changer le nom du FortiGate
+  hosts: fortigate_hosts  # Remplacez "fortigate_hosts" par le nom du groupe d'hôtes contenant votre FortiGate
+
+  vars:
+    fortigate_host: "adresse_IP_ou_nom_d_hôte_du_FortiGate"
+    fortigate_username: "votre_nom_d_utilisateur"
+    fortigate_password: "votre_mot_de_passe"
+    new_device_name: "nouveau_nom_du_FortiGate"
+
+  tasks:
+    - name: Modifier le nom du périphérique FortiGate
+      fortios_config:
+        host: "{{ fortigate_host }}"
+        username: "{{ fortigate_username }}"
+        password: "{{ fortigate_password }}"
+        vdom: "root"
+        global: "global"
+        lines:
+          - "config system global"
+          - "set hostname {{ new_device_name }}"
+      register: config_result
+
+    - name: Vérifier le statut de la configuration
+      debug:
+        msg: "{{ config_result }}"
