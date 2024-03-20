@@ -1,0 +1,31 @@
+---
+- name: Sauvegarde du FortiGate
+  hosts: fortigate_hosts  # Remplacez "fortigate_hosts" par le nom du groupe d'hôtes contenant votre FortiGate
+
+  vars:
+    fortigate_host: "adresse_IP_ou_nom_d_hôte_du_FortiGate"
+    fortigate_username: "votre_nom_d_utilisateur"
+    fortigate_password: "votre_mot_de_passe"
+    backup_file_path: "/chemin/vers/le/fichier/sauvegarde/config_backup_{{ ansible_date_time.date }}.conf"
+
+  tasks:
+    - name: Effectuer une sauvegarde du FortiGate
+      fortios_backup:
+        host: "{{ fortigate_host }}"
+        username: "{{ fortigate_username }}"
+        password: "{{ fortigate_password }}"
+        backup_password: ""  # Laissez vide si aucun mot de passe de sauvegarde n'est configuré sur le FortiGate
+        backup_path: "/sys_config"
+        backup_name: "config_backup_{{ ansible_date_time.date }}.conf"
+      register: backup_result
+
+    - name: Enregistrer la sauvegarde dans un fichier local
+      copy:
+        content: "{{ backup_result.backup }}"
+        dest: "{{ backup_file_path }}"
+        mode: '0600'
+      when: backup_result.changed
+
+    - name: Afficher le statut de la sauvegarde
+      debug:
+        msg: "{{ backup_result }}"
